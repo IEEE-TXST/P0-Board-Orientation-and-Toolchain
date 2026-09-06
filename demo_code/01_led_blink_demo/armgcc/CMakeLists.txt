@@ -294,48 +294,48 @@ SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -Xlinker")
 
 SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} muldefs")
 
-include_directories(${ProjDirPath}/../../../../../../CMSIS/Include)
+include_directories(${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/CMSIS/Include)
 
-include_directories(${ProjDirPath}/../../../../../../devices)
+include_directories(${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices)
 
 include_directories(${ProjDirPath}/..)
 
 include_directories(${ProjDirPath}/../../../..)
 
-include_directories(${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers)
+include_directories(${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers)
 
-include_directories(${ProjDirPath}/../../../../../../devices/MKL26Z4/utilities)
+include_directories(${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/utilities)
 
-include_directories(${ProjDirPath}/../../../../../../devices/MKL26Z4)
+include_directories(${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4)
 
 add_executable(gpio_led_output.elf 
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/gcc/startup_MKL26Z4.S"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_lpsci.h"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_lpsci.c"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_uart.h"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_uart.c"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_port.h"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_gpio.h"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_gpio.c"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/gcc/startup_MKL26Z4.S"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_lpsci.h"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_lpsci.c"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_uart.h"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_uart.c"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_port.h"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_gpio.h"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_gpio.c"
 "${ProjDirPath}/../gpio_led_output.c"
 "${ProjDirPath}/../pin_mux.c"
 "${ProjDirPath}/../pin_mux.h"
 "${ProjDirPath}/../board.c"
 "${ProjDirPath}/../board.h"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_common.h"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_common.c"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/utilities/fsl_debug_console.c"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/utilities/fsl_debug_console.h"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/system_MKL26Z4.c"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/system_MKL26Z4.h"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_common.h"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_common.c"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/utilities/fsl_debug_console.c"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/utilities/fsl_debug_console.h"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/system_MKL26Z4.c"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/system_MKL26Z4.h"
 "${ProjDirPath}/../clock_config.c"
 "${ProjDirPath}/../clock_config.h"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_smc.h"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_smc.c"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_flash.c"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_flash.h"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_clock.h"
-"${ProjDirPath}/../../../../../../devices/MKL26Z4/drivers/fsl_clock.c"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_smc.h"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_smc.c"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_flash.c"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_flash.h"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_clock.h"
+"${ProjDirPath}/../../../../../SDK_2_2_0_FRDM-KL26Z/devices/MKL26Z4/drivers/fsl_clock.c"
 )
 
 
