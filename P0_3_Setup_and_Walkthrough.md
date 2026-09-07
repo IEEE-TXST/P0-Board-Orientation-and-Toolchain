@@ -51,7 +51,9 @@ The example used here is `SDK_2_2_0_FRDM-KL26Z/boards/frdmkl26z/driver_examples/
 
 **What's actually in that program**, so this isn't a black box: it configures one pin as a GPIO output, then loops forever, waiting a bit and flipping that pin's voltage each time. Section 9's code walkthrough covers this line by line.
 
-**To build it yourself from source** (useful once you want to modify it):
+**This folder is a deliberate exception to a rule you'll see for every later project in this series ("`demo_code/` is reference-only, never build it directly").** `01_led_blink_demo/` keeps its own working `armgcc/` build specifically so Section 8.2's color-change exercise has a safe, disposable sandbox to practice in, one you can rebuild and reflash freely without touching anything you'll use later. It's not a model to copy for other demos.
+
+**To build this specific folder yourself from source** (useful for Section 8.2, or just to see the toolchain work once):
 
 ```bash
 cd demo_code/01_led_blink_demo/armgcc
@@ -64,7 +66,9 @@ arm-none-eabi-objcopy -O srec debug/gpio_led_output.elf gpio_led_output.srec
 
 (That last line converts the compiler's native output format, `.elf`, into the `.srec` format OpenSDA's bootloader actually accepts. This is the "linker" step from Section 1 made concrete.)
 
-Members using MCUXpresso IDE instead of the command line: import via **File > Import > C/C++ > Existing Code as Makefile Project**, or open the example project directly if the SDK was imported per Section 5.2, then **Build** and drag the resulting `.srec` from the `Debug/` output folder onto the board's drive.
+Members using MCUXpresso IDE instead of the command line: import via **File > Import > C/C++ > Existing Code as Makefile Project**, then **Build** and drag the resulting `.srec` from the `Debug/` output folder onto the board's drive.
+
+**If you want to go beyond the color exercise** and actually build your own understanding of this code, rather than just flipping a `#define`, do that in a **new project you create via the SDK wizard** instead, the same way Section 9 walks through: it gets you MCUXpresso's normal managed build (no CMake, no `armgcc`, no relative-path setup), the same smooth experience every other project in this series uses. Copy `gpio_led_output.c`'s logic into that new project rather than modifying `01_led_blink_demo/` further.
 
 ### 8.1 Optional: Flashing and Debugging Straight From MCUXpresso IDE
 
@@ -72,7 +76,7 @@ The drag-and-drop method above is the default for a reason: it needs no extra se
 
 **This setup has three real pitfalls that all look like the flash silently failing, worked out through actual hardware testing. Follow this exact path to skip them:**
 
-1. **Don't use the toolbar's plain "Run" button.** MCUXpresso's SDK example projects build with `managedBuildOn="false"` (a project setting meaning the IDE just calls the external `make`/CMake build rather than tracking the output itself), so the IDE has no auto-generated launch target. Clicking "Run" without a real launch configuration either says **"Program not specified"**, or launches a `C/C++ Application` config that tries to run your ARM binary directly on your own laptop and instantly fails with **`exit value: 127`**. Either way, nothing was flashed to the board.
+1. **Don't use the toolbar's plain "Run" button.** `01_led_blink_demo/` builds with `managedBuildOn="false"` (a project setting meaning the IDE just calls the external `make`/CMake build rather than tracking the output itself, the reason this folder is the one exception kept buildable this way; see Section 8), so the IDE has no auto-generated launch target. Clicking "Run" without a real launch configuration either says **"Program not specified"**, or launches a `C/C++ Application` config that tries to run your ARM binary directly on your own laptop and instantly fails with **`exit value: 127`**. Either way, nothing was flashed to the board. (Wizard-created projects, like the one Section 9 has you build, don't have this problem, since MCUXpresso's normal managed build tracks the output itself.)
 2. **Don't pick the LinkServer probe type.** This board's OpenSDA chip runs **P&E Micro's** firmware (Section 6, Section 7), not the CMSIS-DAP protocol LinkServer expects. Choosing LinkServer connects to a debug server, but its `ProbeList` command reports **"No probes found"** even with the board correctly plugged in, because it's speaking the wrong protocol to it entirely.
 3. **The PEmicro launch config needs its Device field set explicitly, or it fails with `Illegal Device Type ()`.** MCUXpresso doesn't infer this from your project.
 
@@ -201,7 +205,7 @@ This is the session's real deliverable: not copying a demo, but writing a small 
 
 **Step-by-step:**
 
-1. In MCUXpresso IDE, create a **new project** using the SDK wizard (**File > New > C/C++ Project**, or the Quickstart Panel's "Create a new C/C++ project..."), device = `MKL26Z128VLH4` (this board's actual chip, see Section 4.3), board files = **Default board files**, project type = **C Project**, SDK Debug Console = **UART**. This auto-generates `board.h`, `board.c`, `pin_mux.c`, and `clock_config.c`, the same board-support files every SDK example uses. You do not write these by hand; they're the "which physical pin does what" and "how fast does the chip run" configuration, generated once per board type. Leave the Components list at its defaults.
+1. In MCUXpresso IDE, create a **new project** using the SDK wizard. **The safest way in is the Quickstart Panel's "Create a new C/C++ project..." link**, not the generic **File > New > C/C++ Project** menu: that menu opens a wizard-selection tree with several similarly-named entries under a plain **C/C++** category (`C Project`, `Makefile Project with Existing Code`, etc.), and picking one of those instead of the actual SDK wizard silently gives you a bare Eclipse project with no board support, no device selection, and nothing usable, no error message telling you it's the wrong choice. The correct wizard shows **Device Packages / Board / Project Type / Project Options** screens; if you don't see those, cancel and start over via the Quickstart Panel link instead. In that wizard: device = `MKL26Z128VLH4` (this board's actual chip, see Section 4.3), board files = **Default board files**, project type = **C Project**, SDK Debug Console = **UART**. This auto-generates `board.h`, `board.c`, `pin_mux.c`, and `clock_config.c`, the same board-support files every SDK example uses. You do not write these by hand; they're the "which physical pin does what" and "how fast does the chip run" configuration, generated once per board type. Leave the Components list at its defaults.
 2. Open the generated `main.c` (named after your project, inside `source/`). Depending on your MCUXpresso version, it may already call the three standard init functions every SDK example needs, just possibly under newer names:
    ```c
    BOARD_InitBootPins();         // configures pins per pin_mux.c (Section 4.3's mapping)
