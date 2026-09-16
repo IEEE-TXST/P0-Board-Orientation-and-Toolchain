@@ -8,19 +8,53 @@
 
 If any of this is new to you, read it once now. It will make every later section make sense instead of feeling like a list of magic incantations.
 
-**Microcontroller vs. development board.** The actual "computer" here is a single chip called the **MKL26Z128**, about the size of a fingernail, soldered onto the board. Everything else on the board (USB connectors, LEDs, buttons, sensors) exists to let you talk to that one chip and let it talk back to you. When people say "the board," they usually mean this whole assembly; when they say "the MCU" (microcontroller unit) or "the target," they mean specifically that one chip.
+#### Microcontroller vs. development board
 
-**Firmware and flashing.** A microcontroller has no operating system, no hard drive, and no "Save As" dialog. Your program lives in a small region of permanent memory built into the chip called **flash memory**, the same physical concept as a USB flash drive, and it starts running that program automatically the instant power is applied. "Flashing" means writing your compiled program into that flash memory. There's no install process, no double-clicking an icon; the chip simply always runs whatever is currently sitting in its flash. This is why unplugging and replugging the board is enough to "run" a new program: the moment power returns, the chip starts executing what's in flash from address zero.
+The actual "computer" here is a single chip called the **MKL26Z128**, about the size of a fingernail, soldered onto the board. Everything else on the board (USB connectors, LEDs, buttons, sensors) exists to let you talk to that one chip and let it talk back to you.
 
-**Why you need a whole toolchain just to blink an LED.** Your C code is text. The chip only understands raw binary machine instructions for its specific processor (an ARM Cortex-M0+ here). Turning your text into something the chip can run takes several tools working together: a **compiler** (translates C into machine instructions), a **linker** (decides where in flash and RAM everything goes, using a linker script), and a **programmer/flasher** (actually writes the result into the chip). The **IDE** (MCUXpresso, in our case) is the application that bundles all of this together with an editor so you don't run each tool by hand from a terminal. The **SDK** (software development kit) is NXP's library of pre-written code for this chip's peripherals (GPIO, UART, I2C, ...) so you're not writing register-level code from day one.
+When people say "the board," they usually mean this whole assembly. When they say "the MCU" (microcontroller unit) or "the target," they mean specifically that one chip.
 
-**OpenSDA: a second, invisible computer that programs the first one.** Here's the part that trips people up: this board actually has *two* microcontrollers on it. One is the MKL26Z128, your target, the chip you're programming. The other is a smaller chip (the MK20DX128) whose only job is to sit between your laptop's USB port and the target chip, translating "a file was copied to a fake USB drive" into "write this binary into the target's flash memory." This translator setup is called **OpenSDA**. You never write code for it; it just needs to be running the correct version of its own firmware (Section 6 explains why, and how to check).
+#### Firmware and flashing
 
-**GPIO.** General-Purpose Input/Output. The simplest thing a microcontroller pin can do: read whether a voltage is present (input, e.g. a button) or set a voltage present or absent (output, e.g. an LED). Every project this semester eventually reduces to some combination of GPIO plus a specific peripheral.
+A microcontroller has no operating system, no hard drive, and no "Save As" dialog. Your program lives in a small region of permanent memory built into the chip called **flash memory**, the same physical concept as a USB flash drive, and it starts running that program automatically the instant power is applied.
 
-**UART and the serial terminal.** UART (Universal Asynchronous Receiver/Transmitter) is a simple two-wire protocol for sending text one byte at a time between two devices. It's how the board talks back to you: your program calls something like `PRINTF("hello\r\n")`, and those characters travel over UART, through the OpenSDA chip, and appear as text in a terminal program on your laptop (PuTTY, Tera Term, etc.), exactly like a command-line window. Without a working UART connection, your board is a black box; you can't see what it's thinking. This is why P0 ends with getting UART output working: it's the debugging lifeline for the rest of the semester.
+"Flashing" means writing your compiled program into that flash memory. There's no install process, no double-clicking an icon; the chip simply always runs whatever is currently sitting in its flash.
 
-**Flash vs. RAM, in plain terms.** Flash memory is permanent (survives power loss) but slow to write and limited in how many times it can be rewritten over its lifetime; it holds your program. RAM (SRAM here) is fast and freely rewritable but empties completely the instant power is lost; it holds your program's variables while it's running. You'll see both mentioned in Section 4.2.
+This is why unplugging and replugging the board is enough to "run" a new program: the moment power returns, the chip starts executing what's in flash from address zero.
+
+#### Why you need a whole toolchain just to blink an LED
+
+Your C code is text. The chip only understands raw binary machine instructions for its specific processor (an ARM Cortex-M0+ here). Turning your text into something the chip can run takes several tools working together:
+
+- A **compiler** translates C into machine instructions.
+- A **linker** decides where in flash and RAM everything goes, using a linker script.
+- A **programmer/flasher** actually writes the result into the chip.
+
+The **IDE** (MCUXpresso, in our case) is the application that bundles all of this together with an editor, so you don't run each tool by hand from a terminal. The **SDK** (software development kit) is NXP's library of pre-written code for this chip's peripherals (GPIO, UART, I2C, ...), so you're not writing register-level code from day one.
+
+#### OpenSDA: a second, invisible computer that programs the first one
+
+Here's the part that trips people up: this board actually has *two* microcontrollers on it. One is the MKL26Z128, your target, the chip you're programming. The other is a smaller chip (the MK20DX128) whose only job is to sit between your laptop's USB port and the target chip, translating "a file was copied to a fake USB drive" into "write this binary into the target's flash memory."
+
+This translator setup is called **OpenSDA**. You never write code for it; it just needs to be running the correct version of its own firmware (Section 6 explains why, and how to check).
+
+#### GPIO
+
+General-Purpose Input/Output. The simplest thing a microcontroller pin can do: read whether a voltage is present (input, e.g. a button) or set a voltage present or absent (output, e.g. an LED).
+
+Every project this semester eventually reduces to some combination of GPIO plus a specific peripheral.
+
+#### UART and the serial terminal
+
+UART (Universal Asynchronous Receiver/Transmitter) is a simple two-wire protocol for sending text one byte at a time between two devices. It's how the board talks back to you: your program calls something like `PRINTF("hello\r\n")`, and those characters travel over UART, through the OpenSDA chip, and appear as text in a terminal program on your laptop (PuTTY, Tera Term, etc.), exactly like a command-line window.
+
+Without a working UART connection, your board is a black box; you can't see what it's thinking. This is why P0 ends with getting UART output working: it's the debugging lifeline for the rest of the semester.
+
+#### Flash vs. RAM, in plain terms
+
+Flash memory is permanent (survives power loss) but slow to write and limited in how many times it can be rewritten over its lifetime; it holds your program.
+
+RAM (SRAM here) is fast and freely rewritable but empties completely the instant power is lost; it holds your program's variables while it's running. You'll see both mentioned in Section 4.2.
 
 Keep these seven ideas in mind and the rest of this manual should read as mechanics, not mystery.
 

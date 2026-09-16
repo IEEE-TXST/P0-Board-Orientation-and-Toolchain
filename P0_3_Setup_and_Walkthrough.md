@@ -20,9 +20,15 @@ This chapter uses **SDK 2.2.0**, already present in this repository at `SDK_2_2_
 
 ## 6. What OpenSDA Is (in more detail)
 
-Section 1 introduced OpenSDA as a "translator chip." Here's the mechanism: the MK20DX128 runs its own small program that watches for two things. First, it presents itself to your laptop as an ordinary USB flash drive; when you drag a `.srec` file (a text-based file format that encodes your compiled program plus the addresses it belongs at) onto that drive, OpenSDA reads it and writes the corresponding bytes into the target chip's flash memory over an internal debug connection you never see. Second, it forwards UART traffic between the target chip's TX/RX pins and a virtual serial port on your laptop, which is how PRINTF output reaches your terminal.
+Section 1 introduced OpenSDA as a "translator chip." Here's the mechanism: the MK20DX128 runs its own small program that watches for two things.
 
-No JTAG/SWD probe (the more traditional, separate hardware debugger used in industry) and no driver install are needed for basic flashing (Windows may prompt for a driver on first plug-in; accept the default). This drag-and-drop approach is simpler than what you'll see in a real job, which is exactly why it's the right teaching platform for P0: it removes a layer of setup complexity so the session can focus on the concepts in Section 1 rather than debugger configuration.
+First, it presents itself to your laptop as an ordinary USB flash drive. When you drag a `.srec` file (a text-based file format that encodes your compiled program plus the addresses it belongs at) onto that drive, OpenSDA reads it and writes the corresponding bytes into the target chip's flash memory over an internal debug connection you never see.
+
+Second, it forwards UART traffic between the target chip's TX/RX pins and a virtual serial port on your laptop, which is how PRINTF output reaches your terminal.
+
+No JTAG/SWD probe (the more traditional, separate hardware debugger used in industry) and no driver install are needed for basic flashing (Windows may prompt for a driver on first plug-in; accept the default).
+
+This drag-and-drop approach is simpler than what you'll see in a real job, which is exactly why it's the right teaching platform for P0: it removes a layer of setup complexity so the session can focus on the concepts in Section 1 rather than debugger configuration.
 
 ## 7. Checking and Updating the OpenSDA Bootloader
 
@@ -205,7 +211,13 @@ This is the session's real deliverable: not copying a demo, but writing a small 
 
 **Step-by-step:**
 
-1. In MCUXpresso IDE, create a **new project** using the SDK wizard. **The safest way in is the Quickstart Panel's "Create a new C/C++ project..." link**, not the generic **File > New > C/C++ Project** menu: that menu opens a wizard-selection tree with several similarly-named entries under a plain **C/C++** category (`C Project`, `Makefile Project with Existing Code`, etc.), and picking one of those instead of the actual SDK wizard silently gives you a bare Eclipse project with no board support, no device selection, and nothing usable, no error message telling you it's the wrong choice. The correct wizard shows **Device Packages / Board / Project Type / Project Options** screens; if you don't see those, cancel and start over via the Quickstart Panel link instead. In that wizard: device = `MKL26Z128VLH4` (this board's actual chip, see Section 4.3), board files = **Default board files**, project type = **C Project**, SDK Debug Console = **UART**. This auto-generates `board.h`, `board.c`, `pin_mux.c`, and `clock_config.c`, the same board-support files every SDK example uses. You do not write these by hand; they're the "which physical pin does what" and "how fast does the chip run" configuration, generated once per board type. Leave the Components list at its defaults.
+1. In MCUXpresso IDE, create a **new project** using the SDK wizard.
+
+   **The safest way in is the Quickstart Panel's "Create a new C/C++ project..." link**, not the generic **File > New > C/C++ Project** menu. That menu opens a wizard-selection tree with several similarly-named entries under a plain **C/C++** category (`C Project`, `Makefile Project with Existing Code`, etc.), and picking one of those instead of the actual SDK wizard silently gives you a bare Eclipse project with no board support, no device selection, and nothing usable, no error message telling you it's the wrong choice.
+
+   The correct wizard shows **Device Packages / Board / Project Type / Project Options** screens; if you don't see those, cancel and start over via the Quickstart Panel link instead. In that wizard: device = `MKL26Z128VLH4` (this board's actual chip, see Section 4.3), board files = **Default board files**, project type = **C Project**, SDK Debug Console = **UART**. Leave the Components list at its defaults.
+
+   This auto-generates `board.h`, `board.c`, `pin_mux.c`, and `clock_config.c`, the same board-support files every SDK example uses. You do not write these by hand; they're the "which physical pin does what" and "how fast does the chip run" configuration, generated once per board type.
 2. Open the generated `main.c` (named after your project, inside `source/`). Depending on your MCUXpresso version, it may already call the three standard init functions every SDK example needs, just possibly under newer names:
    ```c
    BOARD_InitBootPins();         // configures pins per pin_mux.c (Section 4.3's mapping)
@@ -214,14 +226,18 @@ This is the session's real deliverable: not copying a demo, but writing a small 
    BOARD_InitDebugConsole();     // sets up UART0 at 115200-8-N-1 and connects it to PRINTF
    ```
    (Older SDK examples, including `01_led_blink_demo`, use `BOARD_InitPins()` / `BOARD_BootClockRUN()` instead. Same job, different generator version. If your `main.c` doesn't have these calls at all, add them yourself, in this order, before anything else in `main()`.) Every project this semester starts main() with some version of these calls. Once you've written this once, you'll recognize the pattern everywhere.
-3. Read a real per-chip identifier to use as the "board ID." Every MKL26Z128 chip has an 80-bit number burned in at the factory that's unique to that specific physical chip (like a serial number), exposed as three read-only registers: `SIM->UIDMH`, `SIM->UIDML`, `SIM->UIDL` (there's no `UIDH` field on this smaller Kinetis part; that only exists on larger chips in the family). Print the low 32 bits as the board ID:
+3. Read a real per-chip identifier to use as the "board ID."
+
+   Every MKL26Z128 chip has an 80-bit number burned in at the factory that's unique to that specific physical chip (like a serial number), exposed as three read-only registers: `SIM->UIDMH`, `SIM->UIDML`, `SIM->UIDL` (there's no `UIDH` field on this smaller Kinetis part; that only exists on larger chips in the family). Print the low 32 bits as the board ID:
    ```c
    PRINTF("Member: <your name>\r\n");
    PRINTF("Board ID: %08X\r\n", SIM->UIDL);
    ```
    The point of using this instead of a made-up number: it proves the output is really coming from your specific board and not a copy-pasted screenshot.
 
-   **Use `%08X`, not `%08lX`.** This matters more than it looks: a wizard-created project links against **Redlib** (NXP's own minimal C library) instead of the `newlib-nano` library `01_led_blink_demo`'s `armgcc` build uses, and Redlib's default `PRINTF` has `PRINTF_ADVANCED_ENABLE` off, which silently drops support for the `l` length modifier. With `%08lX`, the `l` doesn't get consumed as part of the format specifier, so it's treated as an unrecognized conversion character and `X` leaks out as a plain letter, printing something like `Board ID: lX` with no digits at all, no error, no warning. `SIM->UIDL` is already a 32-bit value and `unsigned long` is the same size as `unsigned int` on this chip anyway, so `%08X` alone prints the exact same result correctly. (Row 13 of Section 14 covers this too.)
+   **Use `%08X`, not `%08lX`.** This matters more than it looks. A wizard-created project links against **Redlib** (NXP's own minimal C library) instead of the `newlib-nano` library `01_led_blink_demo`'s `armgcc` build uses, and Redlib's default `PRINTF` has `PRINTF_ADVANCED_ENABLE` off, which silently drops support for the `l` length modifier.
+
+   With `%08lX`, the `l` doesn't get consumed as part of the format specifier, so it's treated as an unrecognized conversion character and `X` leaks out as a plain letter, printing something like `Board ID: lX` with no digits at all, no error, no warning. `SIM->UIDL` is already a 32-bit value and `unsigned long` is the same size as `unsigned int` on this chip anyway, so `%08X` alone prints the exact same result correctly. (Row 13 of Section 14 covers this too.)
 4. Build. The output is a `.axf` file (this newer wizard's name for the same kind of file `01_led_blink_demo`'s `.elf` is, a full executable with debug info), typically under `Debug/`. Two ways to get it onto the board:
    - **IDE debugger (recommended here):** set up a Debug Configuration the same way as Section 8.1, pointing **C/C++ Application** at the `.axf`. Since this is a normal managed-build project (unlike the `armgcc`/CMake-based demos), MCUXpresso may auto-generate a working launch config for you, try Debug before manually creating one.
    - **Drag-and-drop:** a wizard project's default post-build steps often skip generating a `.bin`/`.srec`, check your build console for a commented-out `objcopy`/`checksum` line. If so, convert it yourself first: `arm-none-eabi-objcopy -O srec your_project.axf your_project.srec`, then flash that the same way as Section 8.
